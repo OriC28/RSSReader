@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Feeds\Tables;
 
 use App\Enums\StatusFeed;
+use App\Jobs\FetchRssFeedsJob;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -59,7 +60,9 @@ class FeedsTable
             ->label('Sincronizar ahora')
             ->icon('heroicon-o-arrow-path')
             ->color('success')
-            ->action(function ($record) {})
+            ->action(function ($record) {
+                FetchRssFeedsJob::dispatchSync();
+            })
             ->requiresConfirmation()
             ->modalHeading('¿Forzar sincronización?')
             ->modalDescription('Esto descargará los artículos más recientes del feed de inmediato.')
