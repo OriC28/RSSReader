@@ -2,13 +2,15 @@
 
 namespace App\Enums;
 
-enum StatusNewsletter: string
+use Filament\Support\Contracts\HasLabel;
+
+enum StatusNewsletter: string implements HasLabel
 {
     case GENERATING = 'generating';
     case SENT = 'sent';
     case FAILED = 'failed';
 
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
             self::GENERATING => 'Generando',
