@@ -2,12 +2,22 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryArticle;
+use App\Enums\StatusArticle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Article extends Model
 {
     protected $guarded = [];
+
+    public function casts(): array
+    {
+        return [
+            'status' => StatusArticle::class,
+            'category' => CategoryArticle::class,
+        ];
+    }
 
     public function feed(): BelongsTo
     {
