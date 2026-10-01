@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
@@ -61,7 +62,22 @@ class FeedsTable
             ->icon('heroicon-o-arrow-path')
             ->color('success')
             ->action(function ($record) {
-                FetchRssFeedsJob::dispatchSync();
+                try {
+                    FetchRssFeedsJob::dispatchSync($record);
+                    Notification::make()
+                        ->title("La fuente '$record->name' fue sincronizada correctamente.")
+                        ->success()
+                        ->send();
+                } catch (\Throwable $e) {
+                    logger()->error("Error procesando la fuente {$record->name}: ".$e->getMessage());
+
+                    Notification::make()
+                        ->title('Error al sincronizar la fuente.')
+                        ->body($e->getMessage())
+                        ->danger()
+                        ->persistent()
+                        ->send();
+                }
             })
             ->requiresConfirmation()
             ->modalHeading('¿Forzar sincronización?')

@@ -9,13 +9,15 @@ use Override;
 
 class Feed extends Model
 {
-    protected $fillable = ['name', 'url'];
+    protected $guarded = [];
 
     #[Override]
     public function casts(): array
     {
         return [
             'status' => StatusFeed::class,
+            'last_fetched_at' => 'datetime',
+            'last_error_at' => 'datetime',
         ];
     }
 
