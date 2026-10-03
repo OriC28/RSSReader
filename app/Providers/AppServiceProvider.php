@@ -22,7 +22,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api-gemini', function (object $job) {
-            return Limit::perMinute(10);
+            return [
+                Limit::perMinute(5),
+                Limit::perDay(18),
+            ];
         });
     }
 }

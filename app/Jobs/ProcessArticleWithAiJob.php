@@ -15,11 +15,14 @@ class ProcessArticleWithAiJob implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 3;
-
     public $timeout = 60;
 
     private $min_content_length = 100;
+
+    public function retryUntil(): \Carbon\CarbonInterface
+    {
+        return now()->addDays(3);
+    }
 
     /**
      * Create a new job instance.
@@ -40,7 +43,18 @@ class ProcessArticleWithAiJob implements ShouldQueue
             return;
         }
 
-        $response = $gemini->summarizeAndCategorize($this->article->content);
+        try {
+            $response = $gemini->summarizeAndCategorize($this->article->content);
+        } catch (\Exception $e) {
+            // If the Google quota was exceeded despite the Rate Limiter
+            if (Str::contains($e->getMessage(), ['429', 'RESOURCE_EXHAUSTED', 'quota'])) {
+                // Return the job to the queue so it can be retried the next day
+                $this->release(now()->addDay());
+                return;
+            }
+
+            throw $e;
+        }
 
         ['summary' => $summary, 'category' => $category] = $response;
 
