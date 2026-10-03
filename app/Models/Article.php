@@ -16,6 +16,7 @@ class Article extends Model
         return [
             'status' => StatusArticle::class,
             'category' => CategoryArticle::class,
+            'published_at' => 'datetime',
         ];
     }
 
